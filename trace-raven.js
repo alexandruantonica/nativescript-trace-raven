@@ -11,13 +11,14 @@ var page = require("ui/page").Page;
 var appversion = require("nativescript-appversion");
 require("nativescript-globalevents");
 var TraceRaven = (function () {
-    function TraceRaven(dsn, environment, enableAppBreadcrumbs) {
+    function TraceRaven(dsn, environment, enableAppBreadcrumbs, xhr) {
         if (environment === void 0) { environment = "debug"; }
         if (enableAppBreadcrumbs === void 0) { enableAppBreadcrumbs = true; }
+        if (xhr === void 0) { xhr = true; }
         if (dsn === undefined || dsn === "") {
             throw new Error("Sentry DSN string required to configure Raven TraceWriter");
         }
-        this.initRaven(dsn, environment, enableAppBreadcrumbs);
+        this.initRaven(dsn, environment, enableAppBreadcrumbs, xhr);
     }
     TraceRaven.prototype.write = function (message, category, type) {
         if (typeof (Raven) === "undefined")
@@ -31,11 +32,14 @@ var TraceRaven = (function () {
         }
         Raven.captureMessage(message, { level: level, tags: { trace_category: category } });
     };
-    TraceRaven.prototype.initRaven = function (dsn, environment, enableAppBreadcrumbs) {
+    TraceRaven.prototype.initRaven = function (dsn, environment, enableAppBreadcrumbs, xhr) {
         var _this = this;
         Raven
             .config(dsn, {
             logger: 'nativescript',
+            autoBreadcrumbs: {
+                xhr: xhr
+            },
             environment: environment,
             serverName: platform.device.uuid,
             tags: {
