@@ -15,11 +15,11 @@ require("nativescript-globalevents");
 export class TraceRaven {
   private batteryPercent: number;
 
-  constructor(dsn: string, environment = "debug", enableAppBreadcrumbs = true) {
+  constructor(dsn: string, environment = "debug", enableAppBreadcrumbs = true, xhr = true) {
     if (dsn === undefined || dsn === "") {
       throw new Error("Sentry DSN string required to configure Raven TraceWriter");
     }
-    this.initRaven(dsn, environment, enableAppBreadcrumbs);
+    this.initRaven(dsn, environment, enableAppBreadcrumbs, xhr);
   }
 
   public write(message: string, category: string, type?: number): void {
@@ -37,10 +37,13 @@ export class TraceRaven {
     Raven.captureMessage(message, { level: level, tags: { trace_category: category } });
   }
 
-  private initRaven(dsn: string, environment: string, enableAppBreadcrumbs: boolean) {
+  private initRaven(dsn: string, environment: string, enableAppBreadcrumbs: boolean, xhr: boolean) {
     Raven
       .config(dsn, {
         logger: 'nativescript',
+        autoBreadcrumbs: {
+          xhr: xhr
+        },
         environment: environment,
         serverName: platform.device.uuid,
         tags: {
