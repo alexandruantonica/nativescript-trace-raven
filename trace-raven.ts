@@ -9,7 +9,6 @@ import { Page, ShownModallyData } from "ui/page";
 import { EventData } from "data/observable";
 let page = require("ui/page").Page; // Needed for global events
 let appversion = require("nativescript-appversion");
-let orientation = require('nativescript-orientation');
 require("nativescript-globalevents");
 
 export class TraceRaven {
@@ -23,13 +22,13 @@ export class TraceRaven {
   }
 
   public write(message: string, category: string, type?: number): void {
-    if (typeof(Raven) === "undefined") return; // Do not process if Raven plugin not loaded
+    if (typeof (Raven) === "undefined") return; // Do not process if Raven plugin not loaded
 
     // Sentry only recognizes 'info', 'warning' and 'error' ('error' is default)
     let level = "error";
-    if (type === trace.messageType.log || type === trace.messageType.info) { 
+    if (type === trace.messageType.log || type === trace.messageType.info) {
       level = "info";
-    } else if (type === trace.messageType.warn) { 
+    } else if (type === trace.messageType.warn) {
       level = "warning"
     }
 
@@ -53,7 +52,6 @@ export class TraceRaven {
             device: {
               family: platform.device.manufacturer,
               model: platform.device.model,
-              orientation: DeviceOrientation[orientation.getOrientation()],
               battery_level: this.batteryPercent
             },
             os: {
@@ -98,12 +96,12 @@ export class TraceRaven {
       })
       .install();
 
-      if (enableAppBreadcrumbs) {
-        this.initAutoCrumbs();
-      }
+    if (enableAppBreadcrumbs) {
+      this.initAutoCrumbs();
+    }
 
-      this.initAppVersion();
-      this.initBatteryStatus();
+    this.initAppVersion();
+    this.initBatteryStatus();
   }
 
   private initAutoCrumbs() {
@@ -155,21 +153,21 @@ export class TraceRaven {
       .then((version) => {
         Raven.setTagsContext({ app_version: version });
         Raven.setRelease(version);
-    });
+      });
   }
 
   private initBatteryStatus() {
     if (platform.isAndroid) {
       app.android.registerBroadcastReceiver(android.content.Intent.ACTION_BATTERY_CHANGED,
         (context: android.content.Context, intent: android.content.Intent) => {
-            let level = intent.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1);
-            let scale = intent.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1);
-            this.batteryPercent = (level / scale) * 100.0;
+          let level = intent.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1);
+          let scale = intent.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1);
+          this.batteryPercent = (level / scale) * 100.0;
         });
     } else {
       app.ios.addNotificationObserver(UIDeviceBatteryLevelDidChangeNotification,
         (notification: NSNotification) => {
-            this.batteryPercent = utils.ios.getter(UIDevice, UIDevice.currentDevice).batteryLevel * 100;
+          this.batteryPercent = utils.ios.getter(UIDevice, UIDevice.currentDevice).batteryLevel * 100;
         });
     }
   }
