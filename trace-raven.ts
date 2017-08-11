@@ -7,6 +7,7 @@ import * as utils from "utils/utils";
 import { DeviceOrientation } from "ui/enums";
 import { Page, ShownModallyData } from "ui/page";
 import { EventData } from "data/observable";
+import { LogLevel } from "raven-js";
 let page = require("ui/page").Page; // Needed for global events
 let appversion = require("nativescript-appversion");
 require("nativescript-globalevents");
@@ -25,7 +26,7 @@ export class TraceRaven {
     if (typeof (Raven) === "undefined") return; // Do not process if Raven plugin not loaded
 
     // Sentry only recognizes 'info', 'warning' and 'error' ('error' is default)
-    let level = "error";
+    let level: LogLevel = "error";
     if (type === trace.messageType.log || type === trace.messageType.info) {
       level = "info";
     } else if (type === trace.messageType.warn) {
